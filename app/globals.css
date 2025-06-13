@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 255 100% 100%; /* Pure White */
+    --foreground: 0 0% 0%; /* Pure Black */
+
+    --card: 255 100% 100%;
+    --card-foreground: 0 0% 0%;
+
+    --popover: 255 100% 100%;
+    --popover-foreground: 0 0% 0%;
+
+    --primary: 0 0% 0%;
+    --primary-foreground: 255 100% 100%;
+
+    --secondary: 0 0% 95%; /* Light gray for subtle secondary elements if needed */
+    --secondary-foreground: 0 0% 0%;
+
+    --muted: 0 0% 96%; /* Light gray for muted elements */
+    --muted-foreground: 0 0% 20%; /* Darker gray for muted text */
+
+    --accent: 178 100% 40%; /* Existing Teal as accent */
+    --accent-foreground: 0 0% 0%; /* Black text on accent */
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 255 100% 100%;
+
+    --border: 0 0% 0%; /* Black borders */
+    --input: 0 0% 0%; /* Black input borders */
+    --ring: 0 0% 0%; /* Black ring */
+
+    --radius: 0rem; /* Sharp corners */
+  }
+
+  /* 
+    The .dark class is not strictly needed if we're going for a single B&W theme.
+    If a toggle was desired, this would define the "other" mode.
+    For now, the root variables define our primary B&W theme.
+  */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-extrabold tracking-tighter; /* Bolder, tighter tracking for headings */
+  }
+  /* Oversized typography for specific hero headlines will be applied via utility classes */
+}
