@@ -42,9 +42,6 @@ export default function RaiseScorePage() {
           <Link href="#how-it-works" className={navLinkClass} prefetch={false}>
             How It Works
           </Link>
-          <Link href="#services" className={navLinkClass} prefetch={false}>
-            Services
-          </Link>
           <Link href="/system" className={navLinkClass} prefetch={false}>
             System
           </Link>
@@ -81,9 +78,6 @@ export default function RaiseScorePage() {
               prefetch={false}
             >
               How It Works
-            </Link>
-            <Link href="#services" className={navLinkClass} onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
-              Services
             </Link>
             <Link href="/system" className={navLinkClass} onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
               System
