@@ -17,13 +17,12 @@ import { Progress } from "@/components/ui/progress"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowRight, RotateCcw, Mail, Info } from "lucide-react"
-import { Input } from "@/components/ui/input" // Keep for email
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 
 export function InteractiveQuiz() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  // Store actual values for text, and 'value' for MCQ/Dropdown
   const [answers, setAnswers] = useState<(string | number | null)[]>(new Array(quizQuestions.length).fill(null))
   const [quizCompleted, setQuizCompleted] = useState(false)
   const [finalRaiseScore, setFinalRaiseScore] = useState(0)
@@ -56,16 +55,17 @@ export function InteractiveQuiz() {
         const selectedOption = question.options?.find((opt) => opt.value === answer)
         return selectedOption?.score || 0
       }
-      return 0 // Text questions don't contribute to automated raw score
+      return 0
     })
 
     const totalRawScore = rawScoresPerQuestion.reduce((sum, score) => sum + score, 0)
-    const scaledScore = Math.round((totalRawScore / MAX_RAW_SCORE) * 100)
-    setFinalRaiseScore(Math.min(scaledScore, 100)) // Ensure it doesn't exceed 100
+    // Ensure MAX_RAW_SCORE is not zero to avoid division by zero
+    const scaledScore = MAX_RAW_SCORE > 0 ? Math.round((totalRawScore / MAX_RAW_SCORE) * 100) : 0
+    setFinalRaiseScore(Math.min(scaledScore, 100))
 
     const catScores = calculateCategoryScores(answers, quizQuestions)
     setCategoryScores(catScores)
-    setTopTips(getTopTips(catScores)) // Pass category scores to getTopTips
+    setTopTips(getTopTips(catScores))
     setShowEmailStep(true)
   }
 
@@ -74,7 +74,6 @@ export function InteractiveQuiz() {
     newAnswers[currentQuestionIndex] = value
     setAnswers(newAnswers)
 
-    // Auto-advance for multiple-choice and dropdown
     if (currentQuestion.type === "multiple-choice" || currentQuestion.type === "dropdown") {
       setTimeout(() => {
         handleNextQuestion()
@@ -95,8 +94,6 @@ export function InteractiveQuiz() {
       return
     }
     setIsSubmittingEmail(true)
-
-    // Log all answers and email
     console.log("Submitting Quiz Data:", {
       email,
       finalRaiseScore,
@@ -104,7 +101,6 @@ export function InteractiveQuiz() {
       categoryScores,
       topTips,
     })
-
     await new Promise((resolve) => setTimeout(resolve, 700))
     setIsSubmittingEmail(false)
     setQuizCompleted(true)
@@ -154,10 +150,16 @@ export function InteractiveQuiz() {
               <div className="flex justify-between text-xs uppercase tracking-wider text-background/80 mb-1">
                 <span>{cat.name}</span>
                 <span>
-                  {cat.score}/{cat.maxScore} <span className="text-background/60">raw pts</span>
+                  {cat.score}/{cat.maxScore > 0 ? cat.maxScore : "N/A"}{" "}
+                  <span className="text-background/60">{cat.maxScore > 0 ? "raw pts" : ""}</span>
                 </span>
               </div>
-              <Progress value={(cat.score / cat.maxScore) * 100} className="h-1.5 bg-background/20 [&>div]:bg-accent" />
+              {cat.maxScore > 0 && (
+                <Progress
+                  value={(cat.score / cat.maxScore) * 100}
+                  className="h-1.5 bg-background/20 [&>div]:bg-accent"
+                />
+              )}
             </div>
           ))}
           <p className="text-xs text-background/60 mt-3 italic">
@@ -223,7 +225,6 @@ export function InteractiveQuiz() {
     )
   }
 
-  // Email Step (remains similar)
   if (showEmailStep) {
     return (
       <div className="w-full max-w-md mx-auto p-6 md:p-10 bg-foreground text-background rounded-none shadow-2xl border border-background/30">
@@ -267,7 +268,6 @@ export function InteractiveQuiz() {
     )
   }
 
-  // Question Display Logic
   return (
     <div className="w-full max-w-3xl mx-auto p-4 md:p-8 bg-foreground text-background rounded-none shadow-xl border-x border-b border-background/30">
       <div className="mb-6 md:mb-8 text-center">
@@ -292,7 +292,8 @@ export function InteractiveQuiz() {
               key={option.value.toString()}
               htmlFor={`q${currentQuestion.id}-o${option.value}`}
               className={cn(
-                "flex items-center justify-center text-center p-4 md:p-5 min-h-[70px] border border-background/30 rounded-none cursor-pointer transition-all duration-150 ease-in-out text-xs uppercase tracking-wider font-medium",
+                "flex items-center justify-center p-4 md:p-5 min-h-[100px] border border-background/30 rounded-none cursor-pointer transition-all duration-150 ease-in-out",
+                "text-xs uppercase tracking-wider font-medium", // Base styling for the label
                 answers[currentQuestionIndex] === option.value
                   ? "bg-accent text-accent-foreground border-accent"
                   : "bg-transparent text-background/80 hover:bg-background/10 hover:border-background/50",
@@ -303,7 +304,28 @@ export function InteractiveQuiz() {
                 id={`q${currentQuestion.id}-o${option.value}`}
                 className="sr-only"
               />
-              <span>{option.text}</span>
+              <div className="flex flex-col text-center items-center justify-center">
+                <span
+                  className={cn(
+                    "font-semibold", // Title styling
+                    answers[currentQuestionIndex] === option.value ? "text-accent-foreground" : "text-background",
+                  )}
+                >
+                  {option.text}
+                </span>
+                {option.subtitle && (
+                  <span
+                    className={cn(
+                      "text-xs normal-case tracking-normal font-normal mt-1 px-2", // Subtitle styling
+                      answers[currentQuestionIndex] === option.value
+                        ? "text-accent-foreground/80"
+                        : "text-background/70",
+                    )}
+                  >
+                    {option.subtitle}
+                  </span>
+                )}
+              </div>
             </Label>
           ))}
         </RadioGroup>
@@ -342,22 +364,17 @@ export function InteractiveQuiz() {
             <SelectContent className="bg-foreground border-background/50 text-background rounded-none">
               {currentQuestion.options
                 .filter((opt) => opt.value !== "")
-                .map(
-                  (
-                    option, // Exclude placeholder if it has empty value
-                  ) => (
-                    <SelectItem
-                      key={option.value.toString()}
-                      value={option.value.toString()}
-                      className="hover:bg-accent/20 focus:bg-accent/30 text-sm uppercase tracking-wider"
-                    >
-                      {option.text}
-                    </SelectItem>
-                  ),
-                )}
+                .map((option) => (
+                  <SelectItem
+                    key={option.value.toString()}
+                    value={option.value.toString()}
+                    className="hover:bg-accent/20 focus:bg-accent/30 text-sm uppercase tracking-wider"
+                  >
+                    {option.text}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
-          {/* Dropdown auto-advances via onValueChange -> handleAnswerSelect -> handleNextQuestion */}
         </div>
       )}
 

@@ -1,7 +1,8 @@
 export type QuestionType = "multiple-choice" | "text" | "dropdown"
 
 export interface QuizOption {
-  text: string
+  text: string // Main display text / title
+  subtitle?: string // Additional descriptive text
   value: string | number // For multiple-choice value or dropdown value
   score?: number // Score for this specific option if applicable
 }
@@ -30,13 +31,44 @@ export const quizQuestions: QuizQuestion[] = [
     questionText: "What stage is your startup currently in?",
     type: "multiple-choice",
     category: "Stage & Progress",
-    maxCategoryRawScore: 10,
+    maxCategoryRawScore: 10, // Max score for this question remains 10
     options: [
-      { text: "Idea", value: "idea", score: 2 },
-      { text: "Prototype", value: "prototype", score: 4 },
-      { text: "MVP (Minimum Viable Product)", value: "mvp", score: 6 },
-      { text: "Launched (Early Users/Revenue)", value: "launched", score: 8 },
-      { text: "Scaling (Consistent Growth)", value: "scaling", score: 10 },
+      {
+        text: "Pre-Seed ($50K–$2M)",
+        subtitle: "Starting with an idea? We’ll guide you to Series A readiness.",
+        value: "pre_seed",
+        score: 2,
+      },
+      {
+        text: "Seed ($500K–$5M)",
+        subtitle: "Building traction? Get expert advice to scale.",
+        value: "seed",
+        score: 4,
+      },
+      {
+        text: "Series A ($5M–$10M)",
+        subtitle: "Ready to grow? Prepare for a successful raise.",
+        value: "series_a",
+        score: 6,
+      },
+      {
+        text: "Series B ($10M–$100M)",
+        subtitle: "Scaling fast? Our banking expertise fuels your growth.",
+        value: "series_b",
+        score: 8,
+      },
+      {
+        text: "Series C ($30M–$150M)",
+        subtitle: "Leading your market? We support major capital raises.",
+        value: "series_c",
+        score: 9,
+      },
+      {
+        text: "Late Stage ($150M–$500M)",
+        subtitle: "Going big? Partner with us for strategic deals.",
+        value: "late_stage",
+        score: 10,
+      },
     ],
   },
   {
@@ -101,7 +133,7 @@ export const quizQuestions: QuizQuestion[] = [
       { text: "Transaction Fees / Commission", value: "transaction", score: 5 },
       { text: "Freemium (with Paid Tiers)", value: "freemium", score: 5 },
       { text: "Marketplace", value: "marketplace", score: 5 },
-      { text: "Advertising", value: "advertising", score: 3 }, // Slightly lower as can be harder
+      { text: "Advertising", value: "advertising", score: 3 },
       { text: "Hardware Sales", value: "hardware", score: 5 },
       { text: "Services / Consulting", value: "services", score: 4 },
       { text: "Other / Not Sure Yet", value: "other", score: 1 },
@@ -139,18 +171,19 @@ export const quizQuestions: QuizQuestion[] = [
       { text: "< $100K (Pre-Seed / Angel)", value: "seek_lt_100k", score: 5 },
       { text: "$100K - $500K (Seed)", value: "seek_100k_500k", score: 5 },
       { text: "> $500K (Seed+ / Series A)", value: "seek_gt_500k", score: 5 },
-      { text: "Not actively raising right now", value: "not_raising", score: 0 }, // Not raising is fine, but for "Raise Score" it means less immediate need for this score's purpose
+      { text: "Not actively raising right now", value: "not_raising", score: 0 },
     ],
   },
 ]
 
+// MAX_RAW_SCORE calculation remains the same as it's dynamic
 export const MAX_RAW_SCORE = quizQuestions.reduce((sum, q) => {
   if (q.type === "multiple-choice" || q.type === "dropdown") {
     const maxOptionScore = q.options?.reduce((max, opt) => Math.max(max, opt.score || 0), 0) || 0
     return sum + (maxOptionScore || 0)
   }
   return sum
-}, 0) // This will be 10+10+5+10+5 = 40
+}, 0)
 
 export interface CategoryScore {
   score: number
@@ -164,10 +197,10 @@ export const calculateCategoryScores = (
 ): CategoryScore[] => {
   const categoryData: Record<string, { current: number; max: number }> = {
     "Stage & Progress": { current: 0, max: 0 },
-    "Problem & Solution": { current: 0, max: 0 }, // Not directly scored automatically
+    "Problem & Solution": { current: 0, max: 0 },
     "Market & Business Model": { current: 0, max: 0 },
-    Team: { current: 0, max: 0 }, // Not directly scored automatically
-    "Competitive Advantage": { current: 0, max: 0 }, // Not directly scored automatically
+    Team: { current: 0, max: 0 },
+    "Competitive Advantage": { current: 0, max: 0 },
     "Funding Needs": { current: 0, max: 0 },
   }
 
@@ -176,21 +209,18 @@ export const calculateCategoryScores = (
       const selectedValue = answers[index]
       const selectedOption = q.options?.find((opt) => opt.value === selectedValue)
       const score = selectedOption?.score || 0
-      const maxOptionScore = q.options?.reduce((max, opt) => Math.max(max, opt.score || 0), 0) || 0
+      // Calculate max score for this specific question based on its options
+      const maxPossibleScoreForQuestion = q.options?.reduce((max, opt) => Math.max(max, opt.score || 0), 0) || 0
 
       if (categoryData[q.category]) {
         categoryData[q.category].current += score
-        categoryData[q.category].max += maxOptionScore
+        categoryData[q.category].max += maxPossibleScoreForQuestion
       }
-    }
-    // For text questions, we don't add to automated score but acknowledge category
-    else if (categoryData[q.category] && categoryData[q.category].max === 0) {
-      // This indicates a text-only category, we can mark its max as 'N/A' or similar later
     }
   })
 
   return Object.entries(categoryData)
-    .filter((entry) => entry[1].max > 0) // Only include categories that have scorable questions
+    .filter((entry) => entry[1].max > 0)
     .map(([name, data]) => ({
       name: name as QuizQuestion["category"],
       score: data.current,
@@ -212,9 +242,10 @@ export const getRaiseScoreInterpretation = (score: number): string => {
 
 export const getTopTips = (categoryScores: CategoryScore[]): string[] => {
   const tips: string[] = []
-  const sortedCategories = [...categoryScores].sort((a, b) => a.score / a.maxScore - b.score / b.maxScore)
+  // Ensure categoryScores is not empty and elements have maxScore > 0 to avoid division by zero
+  const validCategories = categoryScores.filter((cat) => cat.maxScore > 0)
+  const sortedCategories = [...validCategories].sort((a, b) => a.score / a.maxScore - b.score / b.maxScore)
 
-  // Tip 1: Focus on the weakest scorable category
   if (sortedCategories.length > 0) {
     const weakest = sortedCategories[0]
     if (weakest.name === "Stage & Progress") {
@@ -230,24 +261,22 @@ export const getTopTips = (categoryScores: CategoryScore[]): string[] => {
     tips.push("Ensure all scorable sections of the quiz are completed to get tailored advice.")
   }
 
-  // Tip 2: General advice
   tips.push("Craft a compelling narrative around your problem, solution, and team. Storytelling is key!")
 
-  // Tip 3: Another general advice or based on second weakest
   if (sortedCategories.length > 1) {
     const secondWeakest = sortedCategories[1]
     if (secondWeakest.name === "Stage & Progress" && !tips.some((t) => t.includes("traction"))) {
       tips.push("Show, don't just tell. Quantify your progress with metrics wherever possible.")
     } else if (secondWeakest.name === "Market & Business Model" && !tips.some((t) => t.includes("market research"))) {
       tips.push("Validate your revenue model with early customer interactions or pilot programs.")
-    } else {
+    } else if (!tips.some((tip) => tip.includes("Seek feedback"))) {
+      // Avoid duplicate general advice
       tips.push("Seek feedback on your pitch and business plan from mentors or advisors.")
     }
-  } else {
+  } else if (!tips.some((tip) => tip.includes("Continuously validate"))) {
     tips.push("Continuously validate your assumptions with real customer feedback and market data.")
   }
 
-  // Ensure 3 tips
   const generalTips = [
     "Clearly define your unique value proposition and competitive advantages.",
     "Build a strong, complementary founding team with relevant experience.",
@@ -255,11 +284,11 @@ export const getTopTips = (categoryScores: CategoryScore[]): string[] => {
   ]
   let tipIdx = 0
   while (tips.length < 3 && tipIdx < generalTips.length) {
-    if (!tips.includes(generalTips[tipIdx])) {
+    if (!tips.some((t) => t.startsWith(generalTips[tipIdx].substring(0, 20)))) {
+      // Check for similar tips
       tips.push(generalTips[tipIdx])
     }
     tipIdx++
   }
-
   return tips.slice(0, 3)
 }

@@ -19,7 +19,8 @@ import {
   UsersRound,
   Cpu,
 } from "lucide-react"
-import { TestimonialCarousel } from "@/components/testimonial-carousel"
+// TestimonialCarousel import is no longer needed here if not used elsewhere on this page
+// import { TestimonialCarousel } from "@/components/testimonial-carousel"
 import { useState } from "react"
 import { InteractiveQuiz } from "@/components/interactive-quiz"
 
@@ -263,7 +264,7 @@ export default function RaiseScorePage() {
                 <p className="text-sm uppercase tracking-wider text-background/70">One-time payment</p>
                 <p className="text-7xl font-black my-2 text-accent">$150</p>
                 <Button asChild size="lg" className={`${accentButtonClass} w-full mt-6 text-base py-4`}>
-                  <Link href="#">
+                  <Link href="#quiz">
                     GET MY REPORT NOW <ArrowRight className="w-4 h-4 ml-2" />
                   </Link>
                 </Button>
@@ -272,14 +273,7 @@ export default function RaiseScorePage() {
           </div>
         </section>
 
-        <section className="w-full py-16 md:py-24 border-t border-b border-foreground">
-          <div className="container px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-black text-center tracking-tighter">FROM FOUNDERS LIKE YOU</h2>
-            <div className="mt-10">
-              <TestimonialCarousel />
-            </div>
-          </div>
-        </section>
+        {/* Testimonials section removed */}
 
         <section id="services" className="w-full py-16 md:py-24 border-t border-b border-foreground">
           <div className="container px-4 md:px-6">
