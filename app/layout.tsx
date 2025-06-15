@@ -26,22 +26,13 @@ export const metadata: Metadata = {
     description: "Take our 10-question quiz to get your Raise Score™. AI-powered assessment for entrepreneurs seeking investment. What's your fundability score?",
     url: "https://raisescore.vercel.app",
     siteName: "Raise Score™",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Raise Score™ - Startup Fundability Assessment Tool",
-      },
-    ],
     locale: "en_US",
     type: "website",
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Raise Score™ - Discover Your Startup's Fundability",
     description: "Take our 10-question quiz to get your Raise Score™. AI-powered assessment for entrepreneurs seeking investment.",
-    images: ["/og-image.png"],
   },
   applicationName: "Raise Score™",
   keywords: [
