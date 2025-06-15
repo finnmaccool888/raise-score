@@ -42,7 +42,7 @@ export const validateTextAnswer = (answer: string, question: QuizQuestion): Text
   // Handle null/undefined/empty answers
   if (!answer || answer.trim().length === 0) {
     return {
-      score: -3, // Negative penalty for empty answers
+      score: -5, // Higher negative penalty for empty answers (was -3)
       maxScore,
       issues: ["No response provided"],
       isLowQuality: true
@@ -60,7 +60,7 @@ export const validateTextAnswer = (answer: string, question: QuizQuestion): Text
                       /^(test|testing|asdf|qwer|1234|abc|xyz|lorem|ipsum|placeholder|example|sample|demo|hello|hi|hey|ok|yes|no|maybe|idk|dunno|whatever|stuff|things|something|anything|nothing|none|n\/a|na|tbd|todo|fix|update|change|edit|delete|remove|add|new|old|good|bad|great|awesome|cool|nice|fine|sure|yeah|yep|nope|nah|lol|lmao|haha|omg|wtf|fml|smh|tbh|imo|imho|btw|fyi|aka|etc|blah|meh|ugh|sigh|hmm|umm|err|huh|duh|bruh|bro|yo|sup|wassup|whatsup|howdy|greetings|salutations|farewell|goodbye|bye|cya|ttyl|gtg|brb|afk|rofl|rotfl|lmfao|stfu|gtfo|omfg|wtaf|ffs|jfc|smfh|smdh|afaik|iirc|tl;dr|tldr|eli5|til|dae|iama|ama|cmv|lpt|ysk|psa|nsfw|sfw|nsfl|gore|gross|ew|yuck|yum|nom|delish|tasty|bland|spicy|sweet|sour|bitter|salty|hot|cold|warm|cool|freezing|boiling|wet|dry|soft|hard|smooth|rough|sharp|dull|bright|dark|light|heavy|thick|thin|fat|skinny|tall|short|big|small|tiny|huge|giant|massive|mini|micro|macro|mega|ultra|super|hyper|turbo|extreme|radical|epic|legendary|mythical|godlike|divine|sacred|holy|blessed|cursed|damned|doomed|screwed|fucked|shit|crap|damn|hell|heck|darn|gosh|golly|gee|wow|whoa|dude|man|guy|girl|person|people|human|humans|animal|animals|creature|creatures|thing|things|object|objects|item|items|stuff|junk|trash|garbage|waste|rubbish|debris|clutter|mess|chaos|disorder|mayhem|pandemonium|bedlam|anarchy|revolution|rebellion|uprising|revolt|protest|demonstration|rally|march|parade|festival|celebration|party|bash|shindig|hootenanny|hoedown|jamboree|fiesta|carnival|gala|soiree|gathering|meeting|conference|convention|summit|symposium|seminar|workshop|tutorial|lesson|class|course|program|curriculum|syllabus|agenda|schedule|timetable|calendar|date|appointment|reservation|booking|commitment|obligation|responsibility|duty|task|job|work|labor|effort|struggle|battle|fight|war|conflict|dispute|argument|debate|discussion|conversation|chat|talk|dialogue|monologue|speech|presentation|lecture|sermon|address|announcement|declaration|proclamation|statement|comment|remark|observation|note|message|memo|letter|email|text|sms|call|phone|mobile|cell|smartphone|computer|laptop|desktop|tablet|ipad|device|gadget|machine|equipment|tool|instrument|apparatus|contraption|mechanism|system|network|internet|web|website|page|site|blog|forum|social|media|platform|app|application|software|program|code|script|algorithm|function|method|procedure|process|operation|action|activity|task|project|assignment|homework|study|research|investigation|analysis|examination|inspection|review|audit|assessment|evaluation|judgment|opinion|thought|idea|concept|notion|theory|hypothesis|assumption|belief|faith|trust|confidence|doubt|uncertainty|question|answer|solution|problem|issue|challenge|difficulty|obstacle|barrier|hurdle)$/i.test(trimmedAnswer)
 
   if (hasGibberish) {
-    score -= 4 // Heavy penalty for gibberish
+    score -= 8 // Very heavy penalty for gibberish (was -4)
     issues.push("Response appears to be gibberish or placeholder text")
   }
 

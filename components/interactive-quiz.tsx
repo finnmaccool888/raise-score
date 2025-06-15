@@ -68,6 +68,7 @@ export function InteractiveQuiz() {
     // Check for low quality text answers
     const textQualityResults: TextQualityResult[] = []
     let hasLowQuality = false
+    let gibberishCount = 0
     
     answers.forEach((answer, index) => {
       const question = quizQuestions[index]
@@ -78,6 +79,10 @@ export function InteractiveQuiz() {
         if (textQuality.isLowQuality) {
           hasLowQuality = true
         }
+        // Count gibberish and empty responses specifically
+        if (textQuality.issues.some(issue => issue.includes("gibberish") || issue.includes("placeholder") || issue.includes("No response provided"))) {
+          gibberishCount++
+        }
       }
     })
 
@@ -87,7 +92,14 @@ export function InteractiveQuiz() {
     }
 
     const totalRawScore = rawScoresPerQuestion.reduce((sum, score) => sum + score, 0)
-    const scaledScore = MAX_RAW_SCORE > 0 ? Math.round((totalRawScore / MAX_RAW_SCORE) * 100) : 0
+    let scaledScore = MAX_RAW_SCORE > 0 ? Math.round((totalRawScore / MAX_RAW_SCORE) * 100) : 0
+    
+    // If 2 or more gibberish answers detected, set score to 0
+    if (gibberishCount >= 2) {
+      scaledScore = 0
+      setTextQualityIssues(["Multiple low-quality responses detected - score set to 0"])
+    }
+    
     setFinalRaiseScore(Math.min(Math.max(scaledScore, 0), 100)) // Ensure score is between 0-100
 
     const catScores = calculateCategoryScores(answers, quizQuestions)
