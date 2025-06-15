@@ -1,0 +1,7 @@
+export const bgFuturistic = "hsl(var(--futuristic))"
+export const textFuturisticForeground = "hsl(var(--futuristic-foreground))"
+export const bgFuturisticAccent = "hsl(var(--futuristic-accent))"
+export const textFuturisticAccent = "hsl(var(--accent))"
+export const bgFuturisticMuted = "hsl(var(--futuristic-muted))"
+export const borderFuturisticMuted = "hsl(var(--futuristic-muted))"
+export const borderFuturisticAccent = "hsl(var(--accent))"
