@@ -7,13 +7,13 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://raisescore.ai"),
+  metadataBase: new URL("https://raisescore.vercel.app"),
   title: {
-    default: "RaiseScore.ai - Elevate Your Digital Presence",
-    template: "%s | RaiseScore.ai",
+    default: "Raise Score™ - Discover Your Startup's Fundability",
+    template: "%s | Raise Score™",
   },
   description:
-    "Unlock insights and optimize your online strategy with RaiseScore.ai. AI-powered analytics and tools to boost your score.",
+    "Take our 10-question quiz to get your Raise Score™ and discover how ready your startup is for funding. AI-powered assessment for entrepreneurs seeking investment.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
@@ -22,16 +22,16 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
   },
   openGraph: {
-    title: "RaiseScore.ai - Elevate Your Digital Presence",
-    description: "Unlock insights and optimize your online strategy with RaiseScore.ai.",
-    url: "https://raisescore.ai",
-    siteName: "RaiseScore.ai",
+    title: "Raise Score™ - Discover Your Startup's Fundability",
+    description: "Take our 10-question quiz to get your Raise Score™. AI-powered assessment for entrepreneurs seeking investment. What's your fundability score?",
+    url: "https://raisescore.vercel.app",
+    siteName: "Raise Score™",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "RaiseScore.ai - AI-Powered Analytics and Optimization",
+        alt: "Raise Score™ - Startup Fundability Assessment Tool",
       },
     ],
     locale: "en_US",
@@ -39,12 +39,25 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "RaiseScore.ai - Elevate Your Digital Presence",
-    description: "Unlock insights and optimize your online strategy with RaiseScore.ai.",
+    title: "Raise Score™ - Discover Your Startup's Fundability",
+    description: "Take our 10-question quiz to get your Raise Score™. AI-powered assessment for entrepreneurs seeking investment.",
     images: ["/og-image.png"],
   },
-  applicationName: "RaiseScore.ai",
-  keywords: ["AI", "analytics", "digital presence", "SEO", "optimization", "score improvement", "raisescore"],
+  applicationName: "Raise Score™",
+  keywords: [
+    "startup funding", 
+    "fundraising", 
+    "investment readiness", 
+    "fundability assessment", 
+    "startup quiz", 
+    "entrepreneur", 
+    "venture capital", 
+    "seed funding", 
+    "Series A", 
+    "pitch deck", 
+    "business plan",
+    "raise score"
+  ],
   robots: {
     index: true,
     follow: true,
@@ -56,13 +69,15 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-    generator: 'v0.dev'
+  authors: [{ name: "Raise Score Team" }],
+  creator: "Raise Score™",
+  publisher: "Raise Score™",
 }
 
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" }, // Your globals.css uses #000000 for dark bg
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -75,6 +90,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/icon.png" type="image/png" sizes="192x192" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+        <meta name="theme-color" content="#14b8a6" />
+      </head>
       <body className={`${inter.className} bg-background text-foreground`}>
         {/* If using next-themes:
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
