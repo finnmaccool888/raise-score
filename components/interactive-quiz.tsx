@@ -8,8 +8,9 @@ import {
   calculateCategoryScores,
   getTopTips,
   MAX_RAW_SCORE,
+  validateTextAnswer,
 } from "@/lib/quiz-data"
-import type { QuizQuestion, CategoryScore } from "@/lib/quiz-data"
+import type { QuizQuestion, CategoryScore, TextQualityResult } from "@/lib/quiz-data"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group" // RadioGroupItem is used internally by Label
 import { Label } from "@/components/ui/label"
@@ -31,6 +32,8 @@ export function InteractiveQuiz() {
   const [email, setEmail] = useState("")
   const [showEmailStep, setShowEmailStep] = useState(false)
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false)
+  const [textQualityIssues, setTextQualityIssues] = useState<string[]>([])
+  const [hasLowQualityText, setHasLowQualityText] = useState(false)
 
   const currentQuestion: QuizQuestion = quizQuestions[currentQuestionIndex]
   const progressValue = ((currentQuestionIndex + 1) / quizQuestions.length) * 100
@@ -54,13 +57,38 @@ export function InteractiveQuiz() {
       if (question.type === "multiple-choice" || question.type === "dropdown") {
         const selectedOption = question.options?.find((opt) => opt.value === answer)
         return selectedOption?.score || 0
+      } else if (question.type === "text" && question.textMaxScore) {
+        const textAnswer = answer as string || ""
+        const textQuality = validateTextAnswer(textAnswer, question)
+        return textQuality.score
       }
       return 0
     })
 
+    // Check for low quality text answers
+    const textQualityResults: TextQualityResult[] = []
+    let hasLowQuality = false
+    
+    answers.forEach((answer, index) => {
+      const question = quizQuestions[index]
+      if (question.type === "text" && question.textMaxScore) {
+        const textAnswer = answer as string || ""
+        const textQuality = validateTextAnswer(textAnswer, question)
+        textQualityResults.push(textQuality)
+        if (textQuality.isLowQuality) {
+          hasLowQuality = true
+        }
+      }
+    })
+
+    setHasLowQualityText(hasLowQuality)
+    if (hasLowQuality) {
+      setTextQualityIssues(["Text-based answers did not provide enough data for optimal scoring"])
+    }
+
     const totalRawScore = rawScoresPerQuestion.reduce((sum, score) => sum + score, 0)
     const scaledScore = MAX_RAW_SCORE > 0 ? Math.round((totalRawScore / MAX_RAW_SCORE) * 100) : 0
-    setFinalRaiseScore(Math.min(scaledScore, 100))
+    setFinalRaiseScore(Math.min(Math.max(scaledScore, 0), 100)) // Ensure score is between 0-100
 
     const catScores = calculateCategoryScores(answers, quizQuestions)
     setCategoryScores(catScores)
@@ -115,6 +143,8 @@ export function InteractiveQuiz() {
     setFinalRaiseScore(0)
     setCategoryScores([])
     setTopTips([])
+    setTextQualityIssues([])
+    setHasLowQualityText(false)
   }
 
   const [animatedText, setAnimatedText] = useState("SYSTEM ONLINE. AWAITING INPUT...")
@@ -162,8 +192,13 @@ export function InteractiveQuiz() {
             </div>
           ))}
           <p className="text-xs text-background/60 mt-3 italic">
-            Note: Text-based answers contribute to a full audit but not this automated score.
+            Note: Text-based answers now contribute to your automated score for enhanced accuracy.
           </p>
+          {hasLowQualityText && (
+            <p className="text-xs text-background/50 mt-2 italic">
+              {textQualityIssues.join(". ")}
+            </p>
+          )}
         </div>
 
         <div className="bg-background/5 p-4 md:p-6 rounded-none mb-8 border-y border-background/20">
@@ -318,7 +353,18 @@ export function InteractiveQuiz() {
                 >
                   {option.text}
                 </span>
-                {/* Subtitle rendering removed for reversion */}
+                {option.subtitle && (
+                  <span // This span is for the subtitle text
+                    className={cn(
+                      "text-xs mt-2 leading-relaxed",
+                      answers[currentQuestionIndex] === option.value 
+                        ? "text-accent-foreground/70" 
+                        : "text-background/70",
+                    )}
+                  >
+                    {option.subtitle}
+                  </span>
+                )}
               </Label>
             )
           })}
